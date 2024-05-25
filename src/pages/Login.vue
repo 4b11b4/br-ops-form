@@ -28,12 +28,10 @@ const goToNextPage = () => {
   router.push({ name: 'Operations', query: { userId: confirmedId.value } });
 };
 
-// const AIRTABLE_BASE_ID = process.env.VUE_APP_AIRTABLE_BASE_ID;
-const AIRTABLE_BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
-// const AIRTABLE_BASE_ID = process.env.VITE_AIRTABLE_BASE_ID
-console.log(AIRTABLE_BASE_ID)
-const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
-console.log(AIRTABLE_API_KEY)
+console.log(import.meta.env)
+
+const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
+const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY;
 const AIRTABLE_TABLE_NAME_WAREHOUSES = 'Warehouses';
 const AIRTABLE_TABLE_NAME_USERS = 'Team';
 

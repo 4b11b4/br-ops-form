@@ -36,10 +36,9 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SearchableDropdown from '../components/SearchableDropdown.vue';
 
-// const AIRTABLE_BASE_ID = 'appfSMa2B57aLHxkj';
-// const AIRTABLE_API_KEY = 'patpkTQuzTkB1Pq6T.c313a918507d89a256eecd75f176cc6bc65396a0c4655431bb86caa10f02727e';
-const AIRTABLE_BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
-const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
+
+const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
+const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY;
 const AIRTABLE_TABLE_NAME_USERS = 'Team';
 const AIRTABLE_TABLE_NAME_WAREHOUSES = 'Warehouses';
 const AIRTABLE_TABLE_NAME_CLIENTS = 'Clients';
