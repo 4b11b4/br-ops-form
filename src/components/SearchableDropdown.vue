@@ -12,7 +12,7 @@
         <li
           v-for="option in filteredOptions"
           :key="option.value"
-          @click="selectOption(option.value)"
+          @click="handleOptionClick(option.value)"
           class="dropdown-item"
         >
           {{ option.label }}
@@ -59,6 +59,13 @@ const selectOption = (value) => {
     props.options.find((option) => option.value === value)?.label || '';
 };
 
+const handleOptionClick = (value) => {
+  selectOption(value);
+  if (filteredOptions.value.length === 1) {
+    searchQuery.value = '';
+  }
+};
+
 const selectFirst = () => {
   if (filteredOptions.value.length > 0) {
     selectOption(filteredOptions.value[0].value);
@@ -84,18 +91,22 @@ watch(
 }
 
 .searchable-dropdown-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .searchable-dropdown input {
-  width: 100%;
-  padding: 8px;
+  width: 99%;
+  padding: 5px;
+  font-size: 14px;
   box-sizing: border-box;
+  align-self: center; /* Center the input */
 }
 
 .dropdown-menu {
   width: 100%;
-  max-height: 200px; /* Adjust this value to show only 4 items */
+  max-height: 102px; /* Adjust this value to show exactly 4 items */
   overflow-y: auto;
   background: white;
   border: 1px solid #ccc;
@@ -106,10 +117,12 @@ watch(
 }
 
 .dropdown-item {
-  padding: 1px 8px; /* Further reduce padding to decrease whitespace */
+  padding: 2px 8px; /* Reduce padding to make it more compact */
   cursor: pointer;
   color: black; /* Set the text color to black */
   font-size: 14px; /* Make the text slightly smaller */
+  height: 20px; /* Adjust height to be more compact */
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 .dropdown-item:hover {

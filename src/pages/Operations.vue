@@ -3,23 +3,16 @@
     <h1>Operations</h1>
     <p>Gratitude, {{ firstName }}</p>
     <p>
-      <label for="warehouse-select">Choose location: </label>
-      <select
+      <!-- <label for="warehouse-select">Choose location: </label> -->
+      <SearchableDropdown
         id="warehouse-select"
         v-model="selectedWarehouse"
-        @change="fetchClientsByWarehouse"
-      >
-        <option
-          v-for="warehouse in warehouses"
-          :key="warehouse.value"
-          :value="warehouse.value"
-        >
-          {{ warehouse.label }}
-        </option>
-      </select>
+        :options="warehouseOptions"
+        @update:modelValue="fetchClientsByWarehouse"
+      />
     </p>
     <p>
-      <label for="client-select">Choose client: </label>
+      <!-- <label for="client-select">Choose client: </label> -->
       <SearchableDropdown
         id="client-select"
         v-model="selectedClient"
@@ -208,6 +201,11 @@ const fetchInventoryDetailsByIds = async (ids: string[]) => {
     inventoryDetails.value = [];
   }
 };
+
+const warehouseOptions = computed(() => warehouses.value.map(warehouse => ({
+  value: warehouse.value,
+  label: warehouse.label,
+})));
 
 const clientOptions = computed(() => clients.value.map(client => ({
   value: client.id,
