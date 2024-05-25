@@ -36,7 +36,6 @@ const props = defineProps<{
   modelValue: string | number;
 }>();
 
-
 const emits = defineEmits(['update:modelValue']);
 
 const searchQuery = ref('');
@@ -96,7 +95,7 @@ watch(
 
 .dropdown-menu {
   width: 100%;
-  max-height: 200px;
+  max-height: 200px; /* Adjust this value to show only 4 items */
   overflow-y: auto;
   background: white;
   border: 1px solid #ccc;
