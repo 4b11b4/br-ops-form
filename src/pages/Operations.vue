@@ -5,7 +5,6 @@
     <span v-if="user.Greeting">{{ user.Greeting }},</span>
     {{ user.First }}
     <p>
-      <!-- <label for="warehouse-select">Choose location: </label> -->
       <SearchableDropdown
         id="warehouse-select"
         v-model="selectedWarehouse"
@@ -14,7 +13,6 @@
       />
     </p>
     <p>
-      <!-- <label for="client-select">Choose client: </label> -->
       <SearchableDropdown
         id="client-select"
         v-model="selectedClient"
@@ -22,15 +20,11 @@
       />
     </p>
     <div v-if="clientDetails">
-      <!-- <h2>Client Details</h2> -->
-      <!-- {{ clientDetails.parentAccount }}
-      <span v-if="clientDetails.location">{{ clientDetails.location }}</span> -->
-      <!-- <p><strong>Inventory: </strong> {{ clientDetails.inventory }}</p> -->
       <div v-if="inventoryDetails.length">
-        <!-- <h3>Inventory Details</h3> -->
-        <RadioTable
-          :items="inventoryDetails"
+        <SearchableDropdown
+          id="inventory-select"
           v-model="selectedInventoryId"
+          :options="inventoryOptions"
         />
       </div>
     </div>
@@ -41,7 +35,6 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SearchableDropdown from '../components/SearchableDropdown.vue';
-import RadioTable from '../components/RadioTable.vue';
 
 const AIRTABLE_BASE_ID = 'appfSMa2B57aLHxkj';
 const AIRTABLE_API_KEY =
@@ -224,11 +217,32 @@ const clientOptions = computed(() => clients.value.map(client => ({
   label: client.label,
 })));
 
+const inventoryOptions = computed(() => inventoryDetails.value.map(item => ({
+  value: item.id,
+  label: `${item.product} (Estimated: ${item.estimatedInventory})`,
+})));
+
+// Watch for changes in selected warehouse and clear client options if empty
+watch(
+  () => selectedWarehouse.value,
+  (newWarehouse) => {
+    if (newWarehouse === '') {
+      clients.value = [];
+      selectedClient.value = '';
+    } else {
+      fetchClientsByWarehouse();
+    }
+  }
+);
+
 // Watch for changes in selected client and fetch client details
 watch(
   () => selectedClient.value,
   (newClient, oldClient) => {
-    if (newClient && newClient !== oldClient) {
+    if (newClient === '') {
+      inventoryDetails.value = [];
+      clientDetails.value = null;
+    } else if (newClient && newClient !== oldClient) {
       fetchClientDetailsById(newClient);
     }
   }

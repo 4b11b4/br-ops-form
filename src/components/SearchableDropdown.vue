@@ -60,9 +60,11 @@ const selectOption = (value) => {
 };
 
 const handleOptionClick = (value) => {
-  selectOption(value);
-  if (filteredOptions.value.length === 1) {
-    searchQuery.value = '';
+  if (value === props.modelValue) {
+    emits('update:modelValue', ''); // Clear the selection if the same option is clicked
+    searchQuery.value = ''; // Clear the search query
+  } else {
+    selectOption(value);
   }
 };
 
