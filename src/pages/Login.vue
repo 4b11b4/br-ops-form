@@ -25,12 +25,15 @@ const isUserIdValid = computed(() => userId.value.length === 17);
 // Navigation
 const router = useRouter();
 const goToNextPage = () => {
-  router.push({ name: 'Operations', params: { id: confirmedId.value } });
+  router.push({ name: 'Operations', query: { userId: confirmedId.value } });
 };
 
-const AIRTABLE_API_KEY =
-  'patpkTQuzTkB1Pq6T.c313a918507d89a256eecd75f176cc6bc65396a0c4655431bb86caa10f02727e';
-const AIRTABLE_BASE_ID = 'appfSMa2B57aLHxkj';
+// const AIRTABLE_BASE_ID = process.env.VUE_APP_AIRTABLE_BASE_ID;
+const AIRTABLE_BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
+// const AIRTABLE_BASE_ID = process.env.VITE_AIRTABLE_BASE_ID
+console.log(AIRTABLE_BASE_ID)
+const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
+console.log(AIRTABLE_API_KEY)
 const AIRTABLE_TABLE_NAME_WAREHOUSES = 'Warehouses';
 const AIRTABLE_TABLE_NAME_USERS = 'Team';
 

@@ -36,9 +36,10 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SearchableDropdown from '../components/SearchableDropdown.vue';
 
-const AIRTABLE_BASE_ID = 'appfSMa2B57aLHxkj';
-const AIRTABLE_API_KEY =
-  'patpkTQuzTkB1Pq6T.c313a918507d89a256eecd75f176cc6bc65396a0c4655431bb86caa10f02727e';
+// const AIRTABLE_BASE_ID = 'appfSMa2B57aLHxkj';
+// const AIRTABLE_API_KEY = 'patpkTQuzTkB1Pq6T.c313a918507d89a256eecd75f176cc6bc65396a0c4655431bb86caa10f02727e';
+const AIRTABLE_BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
+const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
 const AIRTABLE_TABLE_NAME_USERS = 'Team';
 const AIRTABLE_TABLE_NAME_WAREHOUSES = 'Warehouses';
 const AIRTABLE_TABLE_NAME_CLIENTS = 'Clients';
@@ -47,7 +48,6 @@ const AIRTABLE_TABLE_NAME_INVENTORY = 'Inventory';
 const route = useRoute();
 
 const user = ref({});
-const firstName = ref('');
 const warehouses = ref([]);
 const selectedWarehouse = ref('');
 const clients = ref([]);
@@ -70,11 +70,34 @@ const fetchUserById = async (id: string) => {
     const users = data.records.filter(
       (record: any) => record.id === id && record.fields.Status === 'Active'
     );
-    user.value = users[0].fields;
-    firstName.value = user.value.First;
+    if (users.length > 0) {
+      user.value = users[0].fields;
+      fetchAssignedWarehouses(user.value.Warehouses);
+    }
+  } catch (error) {
+    console.error('Error fetching data from Airtable:', error);
+  }
+};
 
-    // Fetch assigned warehouses after user data is fetched
-    fetchAssignedWarehouses(user.value.Warehouses);
+const fetchUserByNickname = async (nickname: string) => {
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME_USERS}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      },
+    });
+    const data = await response.json();
+
+    const users = data.records.filter(
+      (record: any) => record.fields.Nickname === nickname && record.fields.Status === 'Active'
+    );
+    if (users.length > 0) {
+      const matchedUser = users[0].fields;
+      user.value = matchedUser;
+      fetchAssignedWarehouses(matchedUser.Warehouses);
+    }
   } catch (error) {
     console.error('Error fetching data from Airtable:', error);
   }
@@ -113,7 +136,6 @@ const fetchAssignedWarehouses = async (ids: string[]) => {
 
     // Set selectedWarehouse to user's default warehouse if available
     if (user.value['Warehouse Default']) {
-      // comes in a list, but there's only one
       selectedWarehouse.value = user.value['Warehouse Default'][0];
       fetchClientsByWarehouse();
     }
@@ -140,9 +162,7 @@ const fetchClientsByWarehouse = async () => {
       .filter((record: any) => record.fields.Warehouses.includes(warehouseId))
       .map((record: any) => ({
         id: record.id,
-        label: `${record.fields['Parent Account']}${
-          record.fields['Location'] ? ' ' + record.fields['Location'] : ''
-        }`,
+        label: `${record.fields['Parent Account']}${record.fields['Location'] ? ' ' + record.fields['Location'] : ''}`,
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
   } catch (error) {
@@ -170,7 +190,7 @@ const fetchClientDetailsById = async (id: string) => {
       parentAccount: data.fields['Parent Account'],
       location: data.fields['Location'],
       uniqueClient: data.fields['Unique Client'],
-      inventory: data.fields['Inventory Estimates']
+      inventory: data.fields['Inventory Estimates'],
     };
     fetchInventoryDetailsByIds(clientDetails.value.inventory);
   } catch (error) {
@@ -199,7 +219,7 @@ const fetchInventoryDetailsByIds = async (ids: string[]) => {
     inventoryDetails.value = data.records.map((record: any) => ({
       id: record.id,
       product: record.fields.Product,
-      estimatedInventory: record.fields['Estimated Inventory by SKU']
+      estimatedInventory: record.fields['Estimated Inventory by SKU'],
     }));
   } catch (error) {
     console.error('Error fetching inventory details from Airtable:', error);
@@ -249,10 +269,21 @@ watch(
 );
 
 onMounted(() => {
-  fetchUserById(route.params.id);
+  const { userId, warehouseId, clientId, nick } = route.query;
+
+  if (nick) {
+    fetchUserByNickname(nick as string);
+  } else if (userId) {
+    fetchUserById(userId as string);
+  }
+
+  if (warehouseId) {
+    selectedWarehouse.value = warehouseId as string;
+  }
+
+  if (clientId) {
+    selectedClient.value = clientId as string;
+  }
 });
 </script>
 
-<style>
-/* Add any custom styles here */
-</style>
