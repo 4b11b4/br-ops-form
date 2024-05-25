@@ -36,7 +36,6 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import SearchableDropdown from '../components/SearchableDropdown.vue';
 
-
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
 const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY;
 const AIRTABLE_TABLE_NAME_USERS = 'Team';
@@ -133,11 +132,13 @@ const fetchAssignedWarehouses = async (ids: string[]) => {
 
     warehouses.value = assignedWarehouses;
 
-    // Set selectedWarehouse to user's default warehouse if available
-    if (user.value['Warehouse Default']) {
+    // Set selectedWarehouse to user's default warehouse if available, otherwise to the first warehouse in the list
+    if (user.value['Warehouse Default'] && user.value['Warehouse Default'].length > 0) {
       selectedWarehouse.value = user.value['Warehouse Default'][0];
-      fetchClientsByWarehouse();
+    } else if (warehouses.value.length > 0) {
+      selectedWarehouse.value = warehouses.value[0].value;
     }
+    fetchClientsByWarehouse();
   } catch (error) {
     console.error('Error fetching warehouses from Airtable:', error);
   }
@@ -285,4 +286,3 @@ onMounted(() => {
   }
 });
 </script>
-
