@@ -9,9 +9,9 @@ import Who from './components/Who.vue';
       <img src="./assets/br.png" class="" alt="BR" />
     </a>
   </div>
-  <router-link to="/">Home</router-link> |
-  <router-link to="/about">About</router-link> |
-  <router-link to="/login">Login</router-link>
+  <router-link class="rl" to="/">Home</router-link> |
+  <router-link class="rl" to="/about">About</router-link> |
+  <router-link class="rl" to="/login">Login</router-link>
   <router-view></router-view>
 </template>
 
