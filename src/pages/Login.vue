@@ -28,8 +28,6 @@ const goToNextPage = () => {
   router.push({ name: 'Operations', query: { userId: confirmedId.value } });
 };
 
-console.log(import.meta.env)
-
 const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
 const AIRTABLE_API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY;
 const AIRTABLE_TABLE_NAME_WAREHOUSES = 'Warehouses';
