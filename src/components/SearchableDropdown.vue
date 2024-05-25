@@ -25,10 +25,17 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 
-const props = defineProps({
-  options: Array,
-  modelValue: [String, Number],
-});
+// Define the shape of your options
+interface Option {
+  label: string;
+  value: string | number;
+}
+
+const props = defineProps<{
+  options: Option[];
+  modelValue: string | number;
+}>();
+
 
 const emits = defineEmits(['update:modelValue']);
 
