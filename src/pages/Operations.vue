@@ -1,7 +1,9 @@
 <template>
   <div>
     <h1>Operations</h1>
-    <p>Gratitude, {{ firstName }}</p>
+    
+    <span v-if="user.Greeting">{{ user.Greeting }},</span>
+    {{ user.First }}
     <p>
       <!-- <label for="warehouse-select">Choose location: </label> -->
       <SearchableDropdown
@@ -75,8 +77,11 @@ const fetchUserById = async (id: string) => {
     const users = data.records.filter(
       (record: any) => record.id === id && record.fields.Status === 'Active'
     );
-    firstName.value = users[0].fields.First;
     user.value = users[0].fields;
+    firstName.value = user.value.First;
+
+    // Fetch assigned warehouses after user data is fetched
+    fetchAssignedWarehouses(user.value.Warehouses);
   } catch (error) {
     console.error('Error fetching data from Airtable:', error);
   }
@@ -112,6 +117,13 @@ const fetchAssignedWarehouses = async (ids: string[]) => {
     }
 
     warehouses.value = assignedWarehouses;
+
+    // Set selectedWarehouse to user's default warehouse if available
+    if (user.value['Warehouse Default']) {
+      // comes in a list, but there's only one
+      selectedWarehouse.value = user.value['Warehouse Default'][0];
+      fetchClientsByWarehouse();
+    }
   } catch (error) {
     console.error('Error fetching warehouses from Airtable:', error);
   }
@@ -211,27 +223,6 @@ const clientOptions = computed(() => clients.value.map(client => ({
   value: client.id,
   label: client.label,
 })));
-
-// Watch for changes in user object and fetch warehouses
-watch(
-  () => user.value,
-  (newUser, oldUser) => {
-    if (newUser && newUser !== oldUser) {
-      fetchAssignedWarehouses(newUser.Warehouses);
-    }
-  }
-);
-
-// Watch for changes in warehouses and set the first warehouse as the selected option
-watch(
-  () => warehouses.value,
-  (newWarehouses) => {
-    if (newWarehouses.length > 0) {
-      selectedWarehouse.value = newWarehouses[0].value;
-      fetchClientsByWarehouse();
-    }
-  }
-);
 
 // Watch for changes in selected client and fetch client details
 watch(
