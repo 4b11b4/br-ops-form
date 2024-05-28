@@ -2,11 +2,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import SearchableDropdown from '../components/SearchableDropdown.vue';
 
-const options1 = ref(['Option 1-1', 'Option 1-2', 'Option 1-3']);
-const options2 = ref(['Option 2-1', 'Option 2-2', 'Option 2-3']);
-const selectedOption1 = ref(options1.value[0]);
-const selectedOption2 = ref(options2.value[0]);
+const options1 = ref([]);
+const options2 = ref([]);
+const selectedOption1 = ref('');
+const selectedOption2 = ref('');
 const selectedUsername = ref('');
 const userId = ref('');
 const selectedMethod = ref('username');
@@ -78,9 +79,11 @@ const fetchUsers = async (warehouseId: string) => {
           record.fields.Status === 'Active'
       )
       .map((record: any) => ({
-        label: record.fields.Username,
+        label: record.fields.First + ' ' + record.fields.Last,
         value: record.id,
-      }));
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label)); // Sort by label alphabetically
+
     options2.value = users;
     selectedOption2.value = '';
   } catch (error) {
@@ -169,16 +172,10 @@ watch(selectedUsername, async (newUsername) => {
 
     <br />
 
-    <label for="dropdown2">ID: </label>
-    <select id="dropdown2" v-model="selectedOption2">
-      <option
-        v-for="option in options2"
-        :key="option.value"
-        :value="option.value"
-      >
-        {{ option.label }}
-      </option>
-    </select>
+    <SearchableDropdown
+      v-model="selectedOption2"
+      :options="options2"
+    />
   </div>
 
   <br />
@@ -190,7 +187,7 @@ watch(selectedUsername, async (newUsername) => {
 .checkmark {
   color: green;
   font-weight: bold;
-  margin-left: 8px; /* Adjust spacing as needed */
+  margin-left: 8px;
 }
 .read-the-docs {
   color: #888;
