@@ -145,7 +145,9 @@ const fetchAssignedWarehouses = async (ids: string[]) => {
 };
 
 const fetchClientsByWarehouse = async () => {
+  console.log('fetching clients for warehouse')
   const warehouseId = selectedWarehouse.value;
+  console.log(warehouseId)
   if (!warehouseId) return;
 
   const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME_CLIENTS}`;
@@ -158,13 +160,21 @@ const fetchClientsByWarehouse = async () => {
     });
     const data = await response.json();
 
-    clients.value = data.records
-      .filter((record: any) => record.fields.Warehouses.includes(warehouseId))
-      .map((record: any) => ({
-        id: record.id,
-        label: `${record.fields['Parent Account']}${record.fields['Location'] ? ' ' + record.fields['Location'] : ''}`,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+    let recs = data.records
+
+    recs = recs.filter((record: any) => {
+      const warehouses = record.fields['Warehouses'];
+      return warehouses && warehouses.includes(warehouseId);
+    });
+
+    recs = recs.map((record: any) => ({
+      id: record.id,
+      label: `${record.fields['Parent Account']}${record.fields['Location'] ? ' ' + record.fields['Location'] : ''}`,
+    }))
+
+    recs = recs.sort((a, b) => a.label.localeCompare(b.label));
+
+    clients.value = recs;
   } catch (error) {
     console.error('Error fetching clients from Airtable:', error);
   }
@@ -246,6 +256,7 @@ const inventoryOptions = computed(() => inventoryDetails.value.map(item => ({
 watch(
   () => selectedWarehouse.value,
   (newWarehouse) => {
+    console.log('watch warehouse')
     if (newWarehouse === '') {
       clients.value = [];
       selectedClient.value = '';
@@ -269,18 +280,22 @@ watch(
 );
 
 onMounted(() => {
+  // Deal with query parameters
   const { userId, warehouseId, clientId, nick } = route.query;
 
+  // Handle user
   if (nick) {
     fetchUserByNickname(nick as string);
   } else if (userId) {
     fetchUserById(userId as string);
   }
 
+  // Pass in a warehouse
   if (warehouseId) {
     selectedWarehouse.value = warehouseId as string;
   }
 
+  // Pass in a client
   if (clientId) {
     selectedClient.value = clientId as string;
   }
